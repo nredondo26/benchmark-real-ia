@@ -1,0 +1,17 @@
+{
+  "modelo": "",
+  "reto": "",
+  "fecha": "",
+  "metricas": {
+    "tiempo_segundos": 0,
+    "costo_usd": 0,
+    "calidad_1_10": 0,
+    "errores": 0,
+    "alucinaciones": 0,
+    "lineas_modificadas": 0,
+    "compila": false,
+    "pruebas_superadas_pct": 0
+  },
+  "observaciones": "",
+  "evaluador": ""
+}
