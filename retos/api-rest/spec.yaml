@@ -1,0 +1,417 @@
+openapi: "3.0.3"
+info:
+  title: Task Manager API
+  description: API REST para gestión de tareas con autenticación JWT.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8000
+    description: Servidor de desarrollo
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Mensaje de error
+      required:
+        - detail
+
+    UserOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          example: johndoe@example.com
+      required:
+        - id
+        - username
+        - email
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          example: secret123
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIs...
+        token_type:
+          type: string
+          example: bearer
+      required:
+        - access_token
+        - token_type
+
+    TaskIn:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Título de la tarea
+          example: Implementar login
+        description:
+          type: string
+          description: Descripción detallada
+          example: Añadir autenticación JWT al sistema
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+          default: pending
+          description: Estado de la tarea
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 3
+          description: Prioridad (1 = baja, 5 = crítica)
+      required:
+        - title
+
+    TaskOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Implementar login
+        description:
+          type: string
+          nullable: true
+          example: Añadir autenticación JWT al sistema
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+          example: pending
+        priority:
+          type: integer
+          example: 3
+        owner_id:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-06-30T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-06-30T12:00:00Z"
+      required:
+        - id
+        - title
+        - status
+        - priority
+        - owner_id
+        - created_at
+        - updated_at
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Implementar login con JWT
+        description:
+          type: string
+          nullable: true
+          example: Usar pyjwt para generar tokens
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+          example: in_progress
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+
+    TaskListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskOut"
+        total:
+          type: integer
+          example: 42
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 10
+      required:
+        - items
+        - total
+        - page
+        - size
+
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      description: Autentica un usuario y devuelve un token JWT.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me:
+    get:
+      summary: Obtener usuario actual
+      description: Devuelve los datos del usuario autenticado.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Datos del usuario actual
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserOut"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /tasks:
+    post:
+      summary: Crear tarea
+      description: Crea una nueva tarea para el usuario autenticado.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskIn"
+      responses:
+        "201":
+          description: Tarea creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskOut"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      summary: Listar tareas
+      description: >
+        Obtiene una lista paginada de tareas del usuario autenticado.
+        Se puede filtrar por estado.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Número de página
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Tamaño de página
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+          description: Filtrar por estado
+      responses:
+        "200":
+          description: Lista de tareas paginada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskListResponse"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /tasks/{id}:
+    get:
+      summary: Obtener tarea
+      description: Obtiene una tarea por su ID.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la tarea
+      responses:
+        "200":
+          description: Tarea encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskOut"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Tarea no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      summary: Actualizar tarea
+      description: Actualiza parcial o totalmente una tarea existente.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la tarea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: Tarea actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskOut"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Tarea no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Eliminar tarea
+      description: Elimina una tarea existente.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la tarea
+      responses:
+        "204":
+          description: Tarea eliminada (sin contenido)
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Tarea no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

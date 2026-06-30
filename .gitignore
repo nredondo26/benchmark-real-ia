@@ -5,3 +5,4 @@ __pycache__/
 node_modules/
 terraform/.terraform/
 terraform/terraform.tfstate*
+node_modules/

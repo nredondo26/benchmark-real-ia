@@ -20,3 +20,22 @@ Configurar automatización de transferencia de archivos con GoAnywhere MFT.
 - ✅ Encriptación en tránsito y reposo
 - ✅ Notificaciones funcionan
 - ✅ Logging completo
+
+## Puntuación
+
+| Criterio | Pts |
+|----------|-----|
+| Monitoreo de carpeta | 10 |
+| Validación de CSV | 20 |
+| Transformación y SFTP | 20 |
+| Notificaciones por email | 15 |
+| Manejo de errores y reintentos | 15 |
+| Logging | 10 |
+| Configuración y seguridad | 5 |
+| Documentación | 5 |
+| **Total** | **100** |
+
+## Referencias
+
+- [Especificación detallada](specs/requirements.md)
+- [Checklist de verificación](tests/checklist.md)

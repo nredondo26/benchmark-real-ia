@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Challenge</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 50px; background: #1a1a2e; color: #eee; }
+        .card { background: #16213e; padding: 30px; border-radius: 12px; margin: 20px auto; max-width: 500px; }
+        button { padding: 12px 24px; font-size: 16px; cursor: pointer; background: #0f3460; color: #fff; border: none; border-radius: 6px; }
+        pre { background: #0f3460; padding: 15px; border-radius: 6px; text-align: left; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1> Docker Challenge</h1>
+    <div class="card">
+        <button onclick="fetchData()">Fetch Data from Backend</button>
+        <pre id="output">Click the button to fetch data...</pre>
+    </div>
+    <script>
+        async function fetchData() {
+            const output = document.getElementById('output');
+            output.textContent = 'Loading...';
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+                output.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                output.textContent = 'Error: ' + err.message;
+            }
+        }
+    </script>
+</body>
+</html>

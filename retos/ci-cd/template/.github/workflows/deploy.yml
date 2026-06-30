@@ -1,0 +1,71 @@
+# GitHub Actions CI/CD Workflow
+# Complete this workflow to build, test, and deploy the Node.js app.
+# Requirements:
+#   - Triggers: push and PR to main
+#   - Jobs: lint, test, build, deploy
+#   - Deploy only on push to main (not on PR)
+#   - Use GitHub Secrets for sensitive data (DOCKER_REGISTRY, DEPLOY_KEY, etc.)
+#   - Cache node_modules for faster builds
+#   - Notify Slack on failure
+#   - Implement rollback strategy
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  # TODO: Define global environment variables here
+  # Hint: Use ${{ secrets.SECRET_NAME }} for sensitive values
+  NODE_VERSION: '18'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      # TODO: Checkout code
+      # TODO: Setup Node.js
+      # TODO: Cache node_modules
+      # TODO: Install dependencies
+      # TODO: Run ESLint
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      # TODO: Checkout code
+      # TODO: Setup Node.js
+      # TODO: Cache node_modules
+      # TODO: Install dependencies
+      # TODO: Run tests with coverage
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    # TODO: Only run on push to main (not on PR)
+    steps:
+      # TODO: Checkout code
+      # TODO: Build Docker image or create artifact
+      # TODO: Tag image with commit SHA and 'latest'
+      # TODO: Push to container registry
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    # TODO: Only run on push to main
+    steps:
+      # TODO: Pull image from registry
+      # TODO: Deploy to target environment (e.g., SSH, k8s, cloud)
+      # TODO: Verify deployment (health check)
+      # TODO: On failure, trigger rollback
+
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    needs: [lint, test, build, deploy]
+    steps:
+      # TODO: Send Slack notification on failure
+      # TODO: Include commit info and workflow URL

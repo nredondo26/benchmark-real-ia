@@ -1,0 +1,71 @@
+// Jenkinsfile - CI/CD Pipeline
+// Complete the stages below to build, test, and deploy the Node.js app.
+// Requirements:
+//   - Stages: checkout, lint, test, build, deploy
+//   - Deploy only on main branch
+//   - Use Jenkins credentials for secrets (never hardcode)
+//   - Cache node_modules between runs
+//   - Notify Slack/email on failure
+//   - Implement rollback strategy
+
+pipeline {
+    agent any
+
+    environment {
+        // TODO: Define your environment variables here
+        // Hint: Use credentials() for secrets like DOCKER_REGISTRY, DEPLOY_KEY, SLACK_TOKEN
+    }
+
+    triggers {
+        // TODO: Add pollSCM or webhook trigger
+    }
+
+    options {
+        // TODO: Skip default checkout, set build discarder, timeout, etc.
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // TODO: Clone repository
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                // TODO: Run ESLint
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // TODO: Install dependencies with cache, run tests with coverage
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // TODO: Build Docker image or create build artifact
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                // TODO: Only deploy on main branch
+            }
+            steps {
+                // TODO: Deploy to staging/production environment
+            }
+        }
+    }
+
+    post {
+        success {
+            // TODO: Notify success
+        }
+        failure {
+            // TODO: Notify failure via Slack/email
+            // TODO: Implement rollback (e.g., redeploy previous version)
+        }
+    }
+}
